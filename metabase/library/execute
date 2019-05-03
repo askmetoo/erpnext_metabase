@@ -1,0 +1,7 @@
+#! /bin/bash
+
+export MB_JETTY_SESSION='ALLOWALL'
+export MB_JETTY_ALLOW_ORIGIN='*'
+export MB_JETTY_PORT=5050
+java -Xms256m -Xmx512m -jar ./apps/metabase/metabase/library/metabase.jar 
+

@@ -1,0 +1,12 @@
+{
+	"js/metabase-min.js":[
+		"public/js/metabase.js",
+		"public/html/metabase_page.html",
+		"public/html/metabase_login_form.html",
+		"public/html/metabase_dashboard.html",
+		"public/html/dashboard_iframe.html"
+	],
+	"css/metabase-min.css":[
+		"public/css/metabase.css"
+	]
+}

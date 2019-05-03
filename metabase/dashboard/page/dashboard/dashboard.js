@@ -1,0 +1,90 @@
+frappe.pages['dashboard'].on_page_load = function(wrapper) {
+	var page = frappe.ui.make_app_page({
+		parent: wrapper,
+		title: 'Dashboard',
+		single_column: true
+	});
+	var args = {};
+	$.extend(args, {
+		wrapper: page
+	});
+	new metabase.dashboard_page.Dashboard(args);
+}
+
+frappe.provide("metabase.dashboard_page");
+metabase.dashboard_page.Dashboard = Class.extend({
+
+	init: function(args){
+		$.extend(this, args);
+		this.make();
+	},
+	make: function(){
+		this.page = this.wrapper.parent.page;
+		var me = this;
+		$(frappe.render_template("metabase_dashboard", {})).appendTo(".page-content");
+		this.make_field();
+		this.handle_full_screen();	
+	},
+	make_field: function(){
+		var me= this;
+		this.field  = {
+			fieldtype: "Link", fieldname: "dashboard",
+			reqd: 1, options: "Dashboard", "label": __("Select Dashboard")	
+		};
+		this.page.add_field(this.field);
+		this.field.onchange = () => {
+			me.trigger_refresh();
+		}
+	},
+	handle_full_screen: function(){
+		var me = this;
+		this.full_screen = $(".full-screen");
+		this.full_screen.on("click", function(event){
+			if(!me.dashboard_url){
+				frappe.msgprint(__("Please select dashboard"));
+				return false;
+			}
+			window.open(me.dashboard_url, "_blank");
+		});	
+	},
+	handle_normal_screen: function(){
+		
+		
+	},
+	trigger_refresh: function(){
+		var dashboard = this.page.fields_dict.dashboard.value;
+		var me = this;
+		if(!dashboard){
+			frappe.msgprint(__("Please select dashboard"));
+			return false;
+		}
+		frappe.call({
+
+			method: "metabase.dashboard.page.dashboard.dashboard.get_embeddable_dashboard",
+			freeze: true,
+			freeze_message: __("Please wait while we're getting ready your dashboard"),
+			args: {name: dashboard},
+			callback:function(res){
+				me.dashboard_url = null;
+				if(!res.message){
+					frappe.msgprint(__("No dashboard data found"));
+					return false;
+				}
+				if(res.message && !res.message.iframe_url){
+					frappe.msgprint(__("Iframe URL isn't found, Please sync the data again"));
+					return false;
+				}
+				me.dashboard_url = res.message.iframe_url;
+				me.display_dashboard(res.message.iframe_url);
+			}
+		});	
+	},
+	display_dashboard: function(iframe_url){
+
+		$(".dashboard-iframe").empty();
+		$(frappe.render_template("dashboard_iframe", {
+			hieght: "3000", width: "100%",
+			frameborder: "0", src: iframe_url	
+		})).appendTo(".dashboard-iframe");
+	}
+});
