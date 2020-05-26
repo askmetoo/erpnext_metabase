@@ -103,6 +103,9 @@ scheduler_events = {
  	],
 }
 
+jenv = {
+	"add_extension":  "metabase.utils.jinja2.update_jinja_extension"
+}
 # Testing
 # -------
 
